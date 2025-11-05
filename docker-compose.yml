@@ -1,0 +1,94 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - TZ=Asia/Vladivostok
+      - DB_URL=${DB_URL}
+      - REDIS_URL=${REDIS_URL}
+      - APP_ENV=${APP_ENV}
+      - TELEGRAM_MAIN_BOT_TOKEN=${TELEGRAM_MAIN_BOT_TOKEN}
+      - TELEGRAM_AUTH_BOT_TOKEN=${TELEGRAM_AUTH_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_MAIN_URL=${TELEGRAM_WEBHOOK_MAIN_URL}
+      - TELEGRAM_WEBHOOK_AUTH_URL=${TELEGRAM_WEBHOOK_AUTH_URL}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
+      - FIRST_SUPERADMIN_TG_ID=${FIRST_SUPERADMIN_TG_ID}
+      - DEFAULT_BROADCAST_RATE_PER_MINUTE=${DEFAULT_BROADCAST_RATE_PER_MINUTE}
+      - DEFAULT_BROADCAST_BATCH_SIZE=${DEFAULT_BROADCAST_BATCH_SIZE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: .
+    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    environment:
+      - TZ=Asia/Vladivostok
+      - DB_URL=${DB_URL}
+      - REDIS_URL=${REDIS_URL}
+      - APP_ENV=${APP_ENV}
+      - TELEGRAM_MAIN_BOT_TOKEN=${TELEGRAM_MAIN_BOT_TOKEN}
+      - TELEGRAM_AUTH_BOT_TOKEN=${TELEGRAM_AUTH_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_MAIN_URL=${TELEGRAM_WEBHOOK_MAIN_URL}
+      - TELEGRAM_WEBHOOK_AUTH_URL=${TELEGRAM_WEBHOOK_AUTH_URL}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
+      - FIRST_SUPERADMIN_TG_ID=${FIRST_SUPERADMIN_TG_ID}
+      - DEFAULT_BROADCAST_RATE_PER_MINUTE=${DEFAULT_BROADCAST_RATE_PER_MINUTE}
+      - DEFAULT_BROADCAST_BATCH_SIZE=${DEFAULT_BROADCAST_BATCH_SIZE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      - api
+      - mysql
+      - redis
+
+  beat:
+    build: .
+    command: celery -A app.celery_app.celery_app beat --loglevel=info
+    environment:
+      - TZ=Asia/Vladivostok
+      - DB_URL=${DB_URL}
+      - REDIS_URL=${REDIS_URL}
+      - APP_ENV=${APP_ENV}
+      - TELEGRAM_MAIN_BOT_TOKEN=${TELEGRAM_MAIN_BOT_TOKEN}
+      - TELEGRAM_AUTH_BOT_TOKEN=${TELEGRAM_AUTH_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_MAIN_URL=${TELEGRAM_WEBHOOK_MAIN_URL}
+      - TELEGRAM_WEBHOOK_AUTH_URL=${TELEGRAM_WEBHOOK_AUTH_URL}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
+      - FIRST_SUPERADMIN_TG_ID=${FIRST_SUPERADMIN_TG_ID}
+      - DEFAULT_BROADCAST_RATE_PER_MINUTE=${DEFAULT_BROADCAST_RATE_PER_MINUTE}
+      - DEFAULT_BROADCAST_BATCH_SIZE=${DEFAULT_BROADCAST_BATCH_SIZE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      - api
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8
+    environment:
+      - TZ=Asia/Vladivostok
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=marmelad
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    environment:
+      - TZ=Asia/Vladivostok
+
+volumes:
+  mysql_data:
