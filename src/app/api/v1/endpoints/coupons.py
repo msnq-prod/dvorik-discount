@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.db.models.promotions import Coupon
 from app.db.repositories.promotions import (
     CouponRepository,
     CouponTemplateRepository,
@@ -58,3 +59,15 @@ def redeem_coupon(
         return redemption_service.redeem_coupon(db, redeem_request=redeem_request)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/by-code/{code}", response_model=Coupon)
+def read_coupon_by_code(
+    *,
+    code: str,
+    db: Session = Depends(get_db),
+):
+    coupon = db.query(Coupon).filter(Coupon.code == code).first()
+    if not coupon:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    return coupon

@@ -72,3 +72,29 @@ def delete_campaign(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     return campaign_service.remove_campaign(db, campaign_id=campaign_id)
+
+
+@router.post("/{campaign_id}/activate", response_model=Campaign)
+def activate_campaign(
+    *,
+    campaign_id: int,
+    campaign_service: CampaignService = Depends(get_campaign_service),
+    db: Session = Depends(get_db),
+):
+    campaign = campaign_service.get_campaign(db, campaign_id=campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return campaign_service.activate_campaign(db, campaign=campaign)
+
+
+@router.post("/{campaign_id}/deactivate", response_model=Campaign)
+def deactivate_campaign(
+    *,
+    campaign_id: int,
+    campaign_service: CampaignService = Depends(get_campaign_service),
+    db: Session = Depends(get_db),
+):
+    campaign = campaign_service.get_campaign(db, campaign_id=campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return campaign_service.deactivate_campaign(db, campaign=campaign)

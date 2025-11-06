@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Optional
 
+from pydantic import Field
 from app.schemas.base import BaseSchema
 from app.schemas.enums import GenderEnum
 

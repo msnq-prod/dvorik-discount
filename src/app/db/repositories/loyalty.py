@@ -10,6 +10,9 @@ class ClientRepository(BaseRepository[Client, ClientCreate, ClientUpdate]):
     def get_by_identifier(self, db, *, identifier: str) -> Client | None:
         return db.query(self.model).filter(self.model.identifier == identifier).first()
 
+    def get_by_tg_id(self, db, *, tg_id: int) -> Client | None:
+        return db.query(self.model).filter(self.model.tg_id == tg_id).first()
+
 
 class LevelRepository(BaseRepository[Level, LevelCreate, LevelUpdate]):
     def __init__(self):
