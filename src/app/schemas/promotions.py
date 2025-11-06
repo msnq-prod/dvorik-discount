@@ -91,3 +91,19 @@ class CouponIssueRequest(BaseSchema):
     template_id: int
     campaign_id: Optional[int] = None
     expires_at: Optional[datetime] = None
+
+
+class CouponRedeemRequest(BaseSchema):
+    code: str
+    client_ref: str
+    amount: float = Field(..., gt=0)
+    employee_id: int
+
+
+class CouponRedeemResponse(BaseSchema):
+    code: str
+    amount: float
+    discount: float
+    payable: float
+    status: CouponStatusEnum
+    redeemed_at: datetime

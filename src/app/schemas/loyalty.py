@@ -29,3 +29,23 @@ class ClientUpdate(ClientBase):
 
 class Client(ClientBase):
     id: int
+
+
+# Level Schemas
+class LevelBase(BaseSchema):
+    name: str
+    threshold_amount: float = Field(..., ge=0)
+    perks: dict = {}
+    order: int
+
+
+class LevelCreate(LevelBase):
+    pass
+
+
+class LevelUpdate(LevelBase):
+    pass
+
+
+class Level(LevelBase):
+    id: int
