@@ -10,3 +10,4 @@ passlib[bcrypt]
 aiogram
 python-multipart
 psycopg2-binary
+python-dotenv
