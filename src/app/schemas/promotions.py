@@ -5,6 +5,7 @@ from pydantic import Field
 
 from app.schemas.base import BaseSchema
 from app.schemas.enums import CampaignStatusEnum, CouponStatusEnum, DiscountTypeEnum
+from app.schemas.loyalty import Client
 
 
 # CouponTemplate Schemas
@@ -100,10 +101,15 @@ class CouponRedeemRequest(BaseSchema):
     employee_id: int
 
 
-class CouponRedeemResponse(BaseSchema):
+class RedemptionResult(BaseSchema):
     code: str
     amount: float
     discount: float
     payable: float
     status: CouponStatusEnum
     redeemed_at: datetime
+
+
+class CouponRedeemResponse(BaseSchema):
+    result: RedemptionResult
+    client: Client
