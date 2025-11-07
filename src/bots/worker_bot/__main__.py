@@ -70,12 +70,13 @@ async def purchase_amount_entered(message: types.Message, state: FSMContext):
     amount = float(message.text)
 
     try:
+        employee = await api_client.get(f"/employees/by-tg-id/{message.from_user.id}")
         await api_client.post(
             "/purchases/",
             json={
                 "client_ref": client_ref,
                 "amount": amount,
-                "employee_id": message.from_user.id,
+                "employee_id": employee["id"],
             },
         )
         await message.reply("Purchase recorded successfully!")
