@@ -86,6 +86,25 @@ async def purchase_amount_entered(message: types.Message, state: FSMContext):
         await state.clear()
 
 
+@worker_dp.message(Command(commands=["my_schedule"]))
+async def my_schedule(message: types.Message):
+    try:
+        employee = await api_client.get(f"/employees/by-tg-id/{message.from_user.id}")
+        if employee:
+            shifts = await api_client.get(f"/employees/{employee['id']}/shifts")
+            if shifts:
+                schedule = "\n".join(
+                    [f"- {shift['date']}: {shift['hours']} hours" for shift in shifts]
+                )
+                await message.reply(f"Your upcoming shifts:\n{schedule}")
+            else:
+                await message.reply("You have no upcoming shifts.")
+        else:
+            await message.reply("Could not retrieve your information.")
+    except Exception as e:
+        await message.reply(f"An error occurred: {e}")
+
+
 # This is a placeholder for running the bot with webhooks
 async def main():
     # In a real application, you would set up a webhook here

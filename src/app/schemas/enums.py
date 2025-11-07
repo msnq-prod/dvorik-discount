@@ -72,3 +72,9 @@ class SubscriptionStatusEnum(str, enum.Enum):
     subscribed = "subscribed"
     not_subscribed = "not_subscribed"
     unknown = "unknown"
+
+
+class EventNameEnum(str, enum.Enum):
+    COUPON_ISSUED = "coupon_issued"
+    COUPON_REDEEMED = "coupon_redeemed"
+    PURCHASE_RECORDED = "purchase_recorded"

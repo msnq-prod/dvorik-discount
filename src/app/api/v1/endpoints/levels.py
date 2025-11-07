@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, get_audit_service
 from app.db.repositories.loyalty import LevelRepository
 from app.schemas.loyalty import Level, LevelCreate, LevelUpdate
+from app.schemas.events import AuditLogCreate
+from app.schemas.enums import ActorTypeEnum
 from app.services.loyalty import LoyaltyService
+from app.services.events import AuditService
 
 router = APIRouter()
 
@@ -24,9 +27,21 @@ def create_level(
     *,
     level_in: LevelCreate,
     level_service: LoyaltyService = Depends(get_level_service),
+    audit_service: AuditService = Depends(get_audit_service),
     db: Session = Depends(get_db),
 ):
-    return level_service.create_level(db, level_in=level_in)
+    level = level_service.create_level(db, level_in=level_in)
+    audit_service.log_action(
+        db,
+        log_in=AuditLogCreate(
+            actor_type=ActorTypeEnum.admin,
+            action="create_level",
+            entity_type="level",
+            entity_id=level.id,
+            payload=level_in.model_dump(),
+        ),
+    )
+    return level
 
 
 @router.get(
@@ -71,12 +86,24 @@ def update_level(
     level_id: int,
     level_in: LevelUpdate,
     level_service: LoyaltyService = Depends(get_level_service),
+    audit_service: AuditService = Depends(get_audit_service),
     db: Session = Depends(get_db),
 ):
     level = level_service.get_level(db, level_id=level_id)
     if not level:
         raise HTTPException(status_code=404, detail="Level not found")
-    return level_service.update_level(db, level=level, level_in=level_in)
+    updated_level = level_service.update_level(db, level=level, level_in=level_in)
+    audit_service.log_action(
+        db,
+        log_in=AuditLogCreate(
+            actor_type=ActorTypeEnum.admin,
+            action="update_level",
+            entity_type="level",
+            entity_id=level_id,
+            payload=level_in.model_dump(),
+        ),
+    )
+    return updated_level
 
 
 @router.delete(
@@ -89,9 +116,20 @@ def delete_level(
     *,
     level_id: int,
     level_service: LoyaltyService = Depends(get_level_service),
+    audit_service: AuditService = Depends(get_audit_service),
     db: Session = Depends(get_db),
 ):
     level = level_service.get_level(db, level_id=level_id)
     if not level:
         raise HTTPException(status_code=404, detail="Level not found")
-    return level_service.remove_level(db, level_id=level_id)
+    deleted_level = level_service.remove_level(db, level_id=level_id)
+    audit_service.log_action(
+        db,
+        log_in=AuditLogCreate(
+            actor_type=ActorTypeEnum.admin,
+            action="delete_level",
+            entity_type="level",
+            entity_id=level_id,
+        ),
+    )
+    return deleted_level

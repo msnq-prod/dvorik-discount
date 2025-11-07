@@ -7,6 +7,9 @@ from app.db.repositories.loyalty import ClientRepository
 from app.db.repositories.promotions import CouponRepository
 from app.schemas.enums import CouponStatusEnum, DiscountTypeEnum
 from app.schemas.promotions import CouponRedeemRequest, CouponRedeemResponse
+from app.schemas.events import EventCreate
+from app.schemas.enums import ActorTypeEnum, EventNameEnum
+from app.services.events import EventService
 from app.services.loyalty import LoyaltyService
 
 
@@ -30,7 +33,11 @@ class RedemptionService:
         return 0.0
 
     def redeem_coupon(
-        self, db: Session, *, redeem_request: CouponRedeemRequest
+        self,
+        db: Session,
+        *,
+        redeem_request: CouponRedeemRequest,
+        event_service: EventService,
     ) -> CouponRedeemResponse:
         with db.begin_nested():
             coupon = (
@@ -70,6 +77,22 @@ class RedemptionService:
             db.add(client)
 
             self.loyalty_service.recalculate_level(db, client=client)
+
+            event_service.record_event(
+                db,
+                event_in=EventCreate(
+                    name=EventNameEnum.COUPON_REDEEMED,
+                    actor_type=ActorTypeEnum.employee,
+                    actor_id=redeem_request.employee_id,
+                    entity_type="coupon",
+                    entity_id=coupon.id,
+                    payload={
+                        "client_id": client.id,
+                        "amount": redeem_request.amount,
+                        "discount": discount,
+                    },
+                ),
+            )
 
             db.commit()
 

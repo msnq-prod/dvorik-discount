@@ -7,6 +7,9 @@ from app.db.models.promotions import Coupon
 from app.db.repositories.promotions import CouponRepository, CouponTemplateRepository
 from app.db.repositories.loyalty import ClientRepository
 from app.schemas.promotions import CouponCreate, CouponIssueRequest
+from app.schemas.events import EventCreate
+from app.schemas.enums import ActorTypeEnum, EventNameEnum
+from app.services.events import EventService
 
 
 class CouponService:
@@ -29,7 +32,7 @@ class CouponService:
                 return code
 
     def issue_coupon(
-        self, db: Session, *, issue_request: CouponIssueRequest
+        self, db: Session, *, issue_request: CouponIssueRequest, event_service: EventService
     ) -> Coupon:
         template = self.coupon_template_repository.get(
             db, id=issue_request.template_id
@@ -51,4 +54,21 @@ class CouponService:
             status="issued",
             expires_at=issue_request.expires_at,
         )
-        return self.coupon_repository.create(db, obj_in=coupon_in)
+        coupon = self.coupon_repository.create(db, obj_in=coupon_in)
+
+        event_service.record_event(
+            db,
+            event_in=EventCreate(
+                name=EventNameEnum.COUPON_ISSUED,
+                actor_type=ActorTypeEnum.bot,
+                entity_type="coupon",
+                entity_id=coupon.id,
+                payload={
+                    "client_id": client.id,
+                    "campaign_id": coupon.campaign_id,
+                    "template_id": coupon.template_id,
+                },
+            ),
+        )
+
+        return coupon
