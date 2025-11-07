@@ -89,6 +89,15 @@ class CouponClientMismatchException(CouponException):
         )
 
 
+class CouponTemplateNotFoundException(CouponException):
+    def __init__(self, template_id: int):
+        super().__init__(
+            code="E-COUP-TPL-NOT-FOUND",
+            message="Шаблон купона не найден.",
+            details={"template_id": template_id},
+        )
+
+
 # Other Errors
 class ClientNotFoundException(AppException):
     def __init__(self, client_ref: str):

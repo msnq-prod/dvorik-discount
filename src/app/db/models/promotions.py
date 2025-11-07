@@ -41,6 +41,7 @@ class Campaign(Base):
     attribution_window_days: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default="7"
     )
+    code_prefix: Mapped[str] = mapped_column(Text, nullable=True)
 
     template: Mapped["CouponTemplate"] = relationship(backref="campaigns")
 

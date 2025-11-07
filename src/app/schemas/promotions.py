@@ -46,6 +46,7 @@ class CampaignBase(BaseSchema):
     status: CampaignStatusEnum = CampaignStatusEnum.draft
     utm: dict = {}
     attribution_window_days: int = Field(7, ge=1, le=90)
+    code_prefix: Optional[str] = Field(None, pattern=r"^[А-ЯЁ]{2}$")
 
 
 class CampaignCreate(CampaignBase):
