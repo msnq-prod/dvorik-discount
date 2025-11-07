@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, get_event_service
 from app.db.models.promotions import Coupon
 from app.db.repositories.promotions import (
     CouponRepository,
@@ -35,7 +35,11 @@ def get_redemption_service(db: Session = Depends(get_db)) -> RedemptionService:
     client_repository = ClientRepository()
     level_repository = LevelRepository()
     loyalty_service = LoyaltyService(level_repository)
-    return RedemptionService(coupon_repository, client_repository, loyalty_service)
+    return RedemptionService(
+        coupon_repository=coupon_repository,
+        client_repository=client_repository,
+        loyalty_service=loyalty_service,
+    )
 
 
 @router.post(
@@ -48,9 +52,12 @@ def issue_coupon(
     *,
     issue_request: CouponIssueRequest,
     coupon_service: CouponService = Depends(get_coupon_service),
+    event_service: EventService = Depends(get_event_service),
     db: Session = Depends(get_db),
 ):
-    return coupon_service.issue_coupon(db, issue_request=issue_request)
+    return coupon_service.issue_coupon(
+        db, issue_request=issue_request, event_service=event_service
+    )
 
 
 @router.post(
@@ -63,10 +70,13 @@ def redeem_coupon(
     *,
     redeem_request: CouponRedeemRequest,
     redemption_service: RedemptionService = Depends(get_redemption_service),
+    event_service: EventService = Depends(get_event_service),
     db: Session = Depends(get_db),
 ):
     try:
-        return redemption_service.redeem_coupon(db, redeem_request=redeem_request)
+        return redemption_service.redeem_coupon(
+            db, redeem_request=redeem_request, event_service=event_service
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

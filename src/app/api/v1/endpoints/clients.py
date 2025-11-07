@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.db.repositories.loyalty import ClientRepository
-from app.schemas.loyalty import Client
+from app.schemas.loyalty import Client, ClientCreate, ClientUpdate
 from app.schemas.promotions import Coupon
 
 router = APIRouter()
