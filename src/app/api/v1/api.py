@@ -11,6 +11,8 @@ from app.api.v1.endpoints import (
     dashboard,
     purchases,
     broadcasts,
+    shifts,
+    payrolls,
 )
 
 api_router = APIRouter()
@@ -26,3 +28,5 @@ api_router.include_router(levels.router, prefix="/levels", tags=["levels"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(purchases.router, prefix="/purchases", tags=["purchases"])
 api_router.include_router(broadcasts.router, prefix="/broadcasts", tags=["broadcasts"])
+api_router.include_router(shifts.router, prefix="/shifts", tags=["shifts"])
+api_router.include_router(payrolls.router, prefix="/payrolls", tags=["payrolls"])

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.db.repositories.hr import EmployeeRepository
-from app.schemas.hr import Employee
+from app.schemas.hr import Employee, Shift
 
 router = APIRouter()
 
@@ -80,3 +80,20 @@ def delete_employee(
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
     return employee_repo.remove(db, id=employee_id)
+
+
+@router.get(
+    "/{employee_id}/shifts",
+    response_model=list[Shift],
+    summary="Get shifts for an employee",
+    description="Retrieves a list of all shifts for a specific employee.",
+)
+def read_employee_shifts(
+    *,
+    employee_id: int,
+    db: Session = Depends(get_db),
+):
+    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    return employee.shifts
