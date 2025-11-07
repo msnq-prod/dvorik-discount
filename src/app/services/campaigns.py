@@ -29,3 +29,17 @@ class CampaignService:
 
     def remove_campaign(self, db: Session, *, campaign_id: int) -> Campaign:
         return self.campaign_repository.remove(db, id=campaign_id)
+
+    def activate_campaign(self, db: Session, *, campaign: Campaign) -> Campaign:
+        campaign.status = "active"
+        db.add(campaign)
+        db.commit()
+        db.refresh(campaign)
+        return campaign
+
+    def deactivate_campaign(self, db: Session, *, campaign: Campaign) -> Campaign:
+        campaign.status = "paused"
+        db.add(campaign)
+        db.commit()
+        db.refresh(campaign)
+        return campaign
