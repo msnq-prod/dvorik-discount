@@ -30,6 +30,7 @@ class ClientUpdate(ClientBase):
 
 class Client(ClientBase):
     id: int
+    level: Optional[Level] = None
 
 
 # Level Schemas

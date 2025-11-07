@@ -15,7 +15,12 @@ def get_dashboard_service(db: Session = Depends(get_db)) -> DashboardService:
     return DashboardService()
 
 
-@router.get("/", response_model=DashboardData)
+@router.get(
+    "/",
+    response_model=DashboardData,
+    summary="Get dashboard data",
+    description="Retrieves key metrics for the dashboard, such as the number of issued and redeemed coupons, purchases, and revenue over a specified period.",
+)
 def read_dashboard_data(
     *,
     start_date: Optional[date] = None,

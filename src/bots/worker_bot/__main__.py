@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from bots.bot import worker_bot, worker_dp
 from bots.api_client import api_client
-from .states import RedeemCoupon
+from .states import RedeemCoupon, RecordPurchase
 
 @worker_dp.message(CommandStart())
 async def send_welcome(message: types.Message):
@@ -50,6 +50,40 @@ async def redeem_amount_entered(message: types.Message, state: FSMContext):
         await message.reply(f"Failed to redeem coupon: {e}")
     finally:
         await state.clear()
+
+
+@worker_dp.message(Command(commands=["purchase"]))
+async def purchase_start(message: types.Message, state: FSMContext):
+    await state.set_state(RecordPurchase.waiting_for_client_id)
+    await message.reply("Please enter the client identifier (e.g., AB-123):")
+
+@worker_dp.message(RecordPurchase.waiting_for_client_id)
+async def purchase_client_id_entered(message: types.Message, state: FSMContext):
+    await state.update_data(client_ref=message.text)
+    await state.set_state(RecordPurchase.waiting_for_amount)
+    await message.reply("Please enter the purchase amount:")
+
+@worker_dp.message(RecordPurchase.waiting_for_amount)
+async def purchase_amount_entered(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    client_ref = data.get("client_ref")
+    amount = float(message.text)
+
+    try:
+        await api_client.post(
+            "/purchases/",
+            json={
+                "client_ref": client_ref,
+                "amount": amount,
+                "employee_id": message.from_user.id,
+            },
+        )
+        await message.reply("Purchase recorded successfully!")
+    except Exception as e:
+        await message.reply(f"Failed to record purchase: {e}")
+    finally:
+        await state.clear()
+
 
 # This is a placeholder for running the bot with webhooks
 async def main():

@@ -12,7 +12,12 @@ def get_employee_repository(db: Session = Depends(get_db)) -> EmployeeRepository
     return EmployeeRepository()
 
 
-@router.get("/by-tg-id/{tg_id}", response_model=Employee)
+@router.get(
+    "/by-tg-id/{tg_id}",
+    response_model=Employee,
+    summary="Get an employee by Telegram ID",
+    description="Retrieves the details of a specific employee by their Telegram ID.",
+)
 def read_employee_by_tg_id(
     *,
     tg_id: int,
@@ -25,7 +30,12 @@ def read_employee_by_tg_id(
     return employee
 
 
-@router.post("/", response_model=Employee)
+@router.post(
+    "/",
+    response_model=Employee,
+    summary="Create a new employee",
+    description="Creates a new employee with the specified details.",
+)
 def create_employee(
     *,
     employee_in: EmployeeCreate,
@@ -35,7 +45,12 @@ def create_employee(
     return employee_repo.create(db, obj_in=employee_in)
 
 
-@router.put("/{employee_id}", response_model=Employee)
+@router.put(
+    "/{employee_id}",
+    response_model=Employee,
+    summary="Update an employee",
+    description="Updates the details of an existing employee.",
+)
 def update_employee(
     *,
     employee_id: int,
@@ -49,7 +64,12 @@ def update_employee(
     return employee_repo.update(db, db_obj=employee, obj_in=employee_in)
 
 
-@router.delete("/{employee_id}", response_model=Employee)
+@router.delete(
+    "/{employee_id}",
+    response_model=Employee,
+    summary="Delete an employee",
+    description="Deletes an employee by their unique ID.",
+)
 def delete_employee(
     *,
     employee_id: int,

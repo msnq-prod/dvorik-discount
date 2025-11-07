@@ -38,7 +38,12 @@ def get_redemption_service(db: Session = Depends(get_db)) -> RedemptionService:
     return RedemptionService(coupon_repository, client_repository, loyalty_service)
 
 
-@router.post("/issue", response_model=Coupon)
+@router.post(
+    "/issue",
+    response_model=Coupon,
+    summary="Issue a new coupon",
+    description="Issues a new coupon to a client based on a template and campaign.",
+)
 def issue_coupon(
     *,
     issue_request: CouponIssueRequest,
@@ -48,7 +53,12 @@ def issue_coupon(
     return coupon_service.issue_coupon(db, issue_request=issue_request)
 
 
-@router.post("/redeem", response_model=CouponRedeemResponse)
+@router.post(
+    "/redeem",
+    response_model=CouponRedeemResponse,
+    summary="Redeem a coupon",
+    description="Redeems a coupon for a purchase, calculates the discount, and updates the client's loyalty status.",
+)
 def redeem_coupon(
     *,
     redeem_request: CouponRedeemRequest,
@@ -61,7 +71,12 @@ def redeem_coupon(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/by-code/{code}", response_model=Coupon)
+@router.get(
+    "/by-code/{code}",
+    response_model=Coupon,
+    summary="Get a coupon by its code",
+    description="Retrieves the details of a specific coupon by its unique code.",
+)
 def read_coupon_by_code(
     *,
     code: str,
