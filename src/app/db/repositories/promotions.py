@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Session
+
 from app.db.models.promotions import Campaign, Coupon, CouponTemplate
 from app.db.repositories.base import BaseRepository
 from app.schemas.promotions import (

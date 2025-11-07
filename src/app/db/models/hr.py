@@ -75,7 +75,7 @@ class Payroll(Base):
     )
     month: Mapped[Date] = mapped_column(Date, nullable=False)
     shifts_count: Mapped[int] = mapped_column(
-        Numeric(12, 2), nullable=False, server_default="0"
+        Integer, nullable=False, server_default="0"
     )
     gross: Mapped[float] = mapped_column(
         Numeric(12, 2), nullable=False, server_default="0"
